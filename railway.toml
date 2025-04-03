@@ -1,11 +1,11 @@
 [build]
 builder = "nixpacks"
-buildCommand = "composer update --no-interaction --no-dev --optimize-autoloader"
+buildCommand = "composer update --no-interaction --optimize-autoloader"
 
 [deploy]
 startCommand = "php artisan optimize:clear && php artisan storage:link && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
-healthcheckPath = "/"
-healthcheckTimeout = 300
+healthcheckPath = "/up"
+healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
 
 [[deploy.variables]]
