@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  # Service PHP (Application Laravel)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: laravel
+        uid: 1000
+    container_name: laravel12-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - sqlite-data:/var/www/database
+    networks:
+      - laravel-network
+    depends_on:
+      - redis
+
+  # Serveur web Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: laravel12-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - laravel-network
+    depends_on:
+      - app
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: laravel12-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel-network
+
+# Définition des volumes
+volumes:
+  sqlite-data:
+    driver: local
+
+# Définition des réseaux
+networks:
+  laravel-network:
+    driver: bridge
