@@ -34,11 +34,21 @@ RUN mkdir -p /home/$user/.composer && \
 # Définir le répertoire de travail
 WORKDIR /var/www
 
+# Copier les fichiers d'application
+COPY . /var/www/
+
+# Définir les permissions appropriées
+RUN chown -R $user:www-data /var/www/storage /var/www/bootstrap/cache
+
 # Copier les fichiers d'autorisation personnalisés
 COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
-
 USER $user
+
+# Exécuter composer update et les commandes d'optimisation Laravel
+RUN composer update && \
+    php artisan optimize:clear && \
+    php artisan storage:link
 
 # Exposer le port 9000 pour PHP-FPM
 EXPOSE 9000
