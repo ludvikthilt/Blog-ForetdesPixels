@@ -1,0 +1,13 @@
+[build]
+builder = "nixpacks"
+buildCommand = "composer update --no-interaction --optimize-autoloader"
+
+[deploy]
+startCommand = "php artisan optimize:clear && php artisan storage:link && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+healthcheckPath = "/up"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+
+[[deploy.variables]]
+name = "NIXPACKS_PHP_VERSION"
+value = "8.2"
