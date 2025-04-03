@@ -46,7 +46,7 @@ COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 USER $user
 
 # Exécuter composer update et les commandes d'optimisation Laravel
-RUN composer update && \
+RUN composer update --no-interaction --no-dev --optimize-autoloader&& \
     php artisan optimize:clear && \
     php artisan storage:link
 
