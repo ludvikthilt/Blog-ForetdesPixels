@@ -1,4 +1,8 @@
 <?php
+// Ajoutez ceci au début de bootstrap/app.php
+if (env('IGNOREWARNINGS', false)) {
+    error_reporting(E_ALL & ~E_WARNING);
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +44,7 @@ $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
 );
+
 
 /*
 |--------------------------------------------------------------------------
