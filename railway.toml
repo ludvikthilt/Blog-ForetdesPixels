@@ -10,4 +10,4 @@ restartPolicyType = "ON_FAILURE"
 
 [[deploy.variables]]
 name = "NIXPACKS_PHP_VERSION"
-value = "8.2"
+value = "8.1.31"
