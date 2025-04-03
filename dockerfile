@@ -4,56 +4,46 @@ FROM php:8.2-fpm
 ARG user
 ARG uid
 
-# Installation des dépendances système
+# Installer les dépendances système
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
     zip \
     unzip \
-    nodejs \
-    npm \
-    libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libzip-dev \
+    sqlite3 \
+    libsqlite3-dev
 
-# Installation des extensions PHP
-RUN docker-php-ext-install mbstring exif pcntl bcmath gd zip
-RUN docker-php-ext-install pdo_sqlite
+# Nettoyer le cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installation de Composer
+# Installer les extensions PHP
+RUN docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd zip
+
+# Obtenir Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Création du répertoire de l'application
-WORKDIR /var/www
-
-# Création d'un utilisateur système pour exécuter les commandes Composer et Artisan
+# Créer un utilisateur système pour exécuter les commandes Composer et Artisan
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
-# Copier les fichiers de configuration personnalisés, si nécessaire
-COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
+# Définir le répertoire de travail
+WORKDIR /var/www
 
-# Copier le répertoire du projet
-COPY . /var/www
+# Copier les fichiers d'autorisation personnalisés
+COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Définir le propriétaire du répertoire
-RUN chown -R $user:$user /var/www
+# Copier et rendre exécutable le script d'initialisation
+COPY docker/init.sh /usr/local/bin/init-laravel
+RUN chmod +x /usr/local/bin/init-laravel
 
-# Exécuter Composer Install avec les bonnes permissions
 USER $user
-RUN composer install --no-interaction --no-scripts
-
-# Nettoyer le cache et optimiser
-RUN php artisan optimize:clear
-RUN php artisan cache:clear
-RUN php artisan config:clear
 
 # Exposer le port 9000 pour PHP-FPM
 EXPOSE 9000
 
-# Démarrer PHP-FPM
 CMD ["php-fpm"]
