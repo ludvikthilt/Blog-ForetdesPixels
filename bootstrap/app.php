@@ -1,8 +1,5 @@
 <?php
-// Ajoutez ceci au début de bootstrap/app.php
-if (env('IGNOREWARNINGS', false)) {
-    error_reporting(E_ALL & ~E_WARNING);
-}
+
 
 /*
 |--------------------------------------------------------------------------
