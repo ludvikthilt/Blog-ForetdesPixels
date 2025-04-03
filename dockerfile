@@ -37,9 +37,6 @@ WORKDIR /var/www
 # Copier les fichiers d'autorisation personnalisés
 COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Copier et rendre exécutable le script d'initialisation
-COPY docker/init.sh /usr/local/bin/init-laravel
-RUN chmod +x /usr/local/bin/init-laravel
 
 USER $user
 
