@@ -63,11 +63,5 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true,
-    "railway": [
-            "composer update --no-dev --optimize-autoloader",
-            "php artisan optimize:clear",
-            "php artisan storage:link",
-            "php artisan migrate --force"
-        ]
+    "prefer-stable": true
 }
