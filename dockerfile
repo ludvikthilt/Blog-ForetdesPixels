@@ -19,10 +19,6 @@ RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-
-# Nettoyer le cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Installation des extensions PHP
 RUN docker-php-ext-install mbstring exif pcntl bcmath gd zip
 RUN docker-php-ext-install pdo_sqlite
@@ -47,8 +43,14 @@ COPY . /var/www
 # Définir le propriétaire du répertoire
 RUN chown -R $user:$user /var/www
 
-# Passer à l'utilisateur non-root
+# Exécuter Composer Install avec les bonnes permissions
 USER $user
+RUN composer install --no-interaction --no-scripts
+
+# Nettoyer le cache et optimiser
+RUN php artisan optimize:clear
+RUN php artisan cache:clear
+RUN php artisan config:clear
 
 # Exposer le port 9000 pour PHP-FPM
 EXPOSE 9000
