@@ -60,3 +60,13 @@ Route::get('users', [UserController::class, 'index'])->name('users.index');
 // Error Page
 Route::fallback(fn () => view('error'));
 
+// Routes pour les commentaires
+Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+Route::delete('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
+
+// Route pour les likes
+Route::post('/posts/{post}/like', [App\Http\Controllers\LikeController::class, 'toggleLike'])->name('posts.like');
+
+// Route pour le profil utilisateur
+Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+

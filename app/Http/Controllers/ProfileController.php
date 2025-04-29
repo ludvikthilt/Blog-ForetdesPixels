@@ -57,4 +57,20 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    /**
+ * Affiche la page de profil de l'utilisateur.
+ *
+ * @return \Illuminate\View\View
+ */
+public function index(Request $request): View
+{
+    $user = $request->user();
+    
+    // Récupère les posts, commentaires et likes de l'utilisateur
+    $posts = $user->posts()->latest()->paginate(5);
+    $comments = $user->comments()->with('post')->latest()->paginate(5);
+    $likes = $user->likes()->with('post')->latest()->paginate(5);
+    
+    return view('profile.index', compact('user', 'posts', 'comments', 'likes'));
+}
 }
