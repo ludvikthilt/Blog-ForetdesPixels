@@ -95,13 +95,14 @@ class PostController extends Controller
 
     public function edit(string $id)
     {
-        $this->authorizePostOwner($post);
         $post = Post::findOrFail($id);
+        $this->authorizePostOwner($post);
         return view('posts.edit', ['post' => $post]);
     }
 
     public function update(UpdatePostRequest $request, string $id)
-    {
+    {    
+        $post = Post::findOrFail($id);
         $this->authorizePostOwner($post);
 
         $request->validate([
@@ -116,6 +117,7 @@ class PostController extends Controller
 
     public function destroy(string $id)
     {
+        $post = Post::findOrFail($id);
         $this->authorizePostOwner($post);
         event(new PostDeleted(Auth::id()));
         Post::find($id)->delete();
