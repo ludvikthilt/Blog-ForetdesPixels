@@ -14,6 +14,37 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        // Routes publiques accessibles sans connexion
+        $this->middleware('auth')->except(['index', 'show']);
+        
+        // Routes réservées aux administrateurs
+        $this->middleware('admin')->only([
+            'create', 'store',           // Création de posts
+            'trash', 'postsTable',       // Gestion avancée
+            'restore'                    // Restauration de posts
+        ]);
+    }
+
+        /**
+     * Vérifie si l'utilisateur peut modifier ou supprimer un post spécifique
+     *
+     * @param  \App\Models\Post  $post
+     * @return void
+     */
+    protected function authorizePostOwner(Post $post)
+    {
+        // Si l'utilisateur n'est pas l'auteur du post et n'est pas administrateur
+        if (Auth::id() !== $post->user_id && !Auth::user()->isAdmin()) {
+            abort(403, 'Non autorisé. Vous n\'êtes pas l\'auteur de ce post.');
+        }
+    }
 
     public function index()
     {
@@ -64,12 +95,14 @@ class PostController extends Controller
 
     public function edit(string $id)
     {
+        $this->authorizePostOwner($post);
         $post = Post::findOrFail($id);
         return view('posts.edit', ['post' => $post]);
     }
 
     public function update(UpdatePostRequest $request, string $id)
     {
+        $this->authorizePostOwner($post);
 
         $request->validate([
             'title' => 'required',
@@ -83,6 +116,7 @@ class PostController extends Controller
 
     public function destroy(string $id)
     {
+        $this->authorizePostOwner($post);
         event(new PostDeleted(Auth::id()));
         Post::find($id)->delete();
         return redirect()->route('posts.postsTable')->with('success', 'Post deleted successfully');
