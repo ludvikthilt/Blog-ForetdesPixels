@@ -69,4 +69,23 @@ Route::post('/posts/{post}/like', [App\Http\Controllers\LikeController::class, '
 
 // Route pour le profil utilisateur
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+// Route pour les mails
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
+
+// Ajoutez cette route dans routes/web.php pour tester l'envoi d'email
+Route::get('/test-email', function () {
+    try {
+        $details = [
+            'name' => 'Test Utilisateur',
+            'email' => 'test@example.com',
+            'message' => 'Ceci est un message de test pour vérifier la fonctionnalité d\'envoi d\'email.'
+        ];
+        
+        Mail::to('ludviktybho@gmail.com')->send(new App\Mail\ContactFormMail($details));
+        
+        return "Email envoyé avec succès! Vérifiez votre boîte de réception.";
+    } catch (\Exception $e) {
+        return "Erreur lors de l'envoi de l'email: " . $e->getMessage();
+    }
+});
 
