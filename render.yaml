@@ -1,0 +1,98 @@
+services:
+  - type: web
+    name: thilt
+    runtime: php
+    buildCommand: composer install --optimize-autoloader --no-dev && php artisan optimize && php artisan storage:link
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+    envVars:
+      # Configuration PHP et Nixpacks
+      - key: NIXPACKS_PHP_VERSION
+        value: 8.2
+      - key: PHP_VERSION
+        value: 8.2
+        
+      # Configuration de base Laravel
+      - key: APP_NAME
+        value: thilt
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        value: base64:Zq55m3rlUpBxZuPMbVLHMbEOnR440mzU7rr3oSZk1ZI=
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        fromService:
+          name: thilt
+          type: web
+          property: url
+          
+      # Configuration des logs
+      - key: LOG_CHANNEL
+        value: errorlog
+      - key: LOG_DEPRECATIONS_CHANNEL
+        value: null
+      - key: LOG_LEVEL
+        value: error
+        
+      # Configuration système
+      - key: BROADCAST_DRIVER
+        value: log
+      - key: CACHE_DRIVER
+        value: file
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: SESSION_LIFETIME
+        value: 120
+        
+      # Configuration base de données
+      # Vous devrez créer une base de données PostgreSQL dans Render
+      # et remplacer les placeholders par vos informations réelles
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: postgres
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: thilt_db
+      - key: DB_USERNAME
+        value: postgres
+      - key: DB_PASSWORD
+        generateValue: true
+        
+      # Commandes de build Nixpacks
+      - key: NIXPACKS_BUILD_CMD
+        value: composer install --optimize-autoloader --no-dev && php artisan optimize:clear && php artisan storage:link && php artisan migrate --force
+        
+  # Service base de données PostgreSQL
+  - type: pserv
+    name: postgres
+    plan: free
+    env: postgresql
+    diskSize: 1024
+    envVars:
+      - key: POSTGRES_DB
+        value: thilt_db
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+        
+databases:
+  - name: thilt-db
+    databaseName: thilt_db
+    user: postgres
+    plan: free
+
+# Définir les routes statiques pour stocker les assets
+routes:
+  - type: rewrite
+    source: /storage/*
+    destination: /public/storage/*
+  - type: rewrite
+    source: /*
+    destination: /public/*
